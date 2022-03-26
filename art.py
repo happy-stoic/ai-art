@@ -5,13 +5,12 @@ Todo:
 - Try it out with different source images, stop when something looks cool enough.
 """
 
-from turtle import color
 from aggdraw import Draw, Symbol, Pen, Brush
 import sklearn as sk
 from PIL import Image
 import numpy as np
 import random
-from random import random, choice, choices
+from random import random, choice
 
 
 # Set up an image.

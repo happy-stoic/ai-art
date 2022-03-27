@@ -5,13 +5,13 @@ Todo:
 - Try it out with different source images, stop when something looks cool enough.
 """
 
+from datetime import datetime
 from aggdraw import Draw, Symbol, Pen, Brush
 import sklearn as sk
 from PIL import Image
 import numpy as np
 import random
 from random import random, choice
-
 
 # Set up an image.
 image = Image.fromarray(np.zeros((800, 600, 3)), mode="RGB")
@@ -79,4 +79,8 @@ for i_mark in range(1000):
     mark_maker = generate_a_mark_maker()
     add_a_mark_to_the_canvas(canvas, symbol_params, mark_maker, start_point)
 
-image.show()
+# Save the image
+now = datetime.now()
+image.save(f"data/art_{now.strftime('%Y_%m_%d_%H_%M_%S')}.png")
+
+# TODO: Save the params that I liked

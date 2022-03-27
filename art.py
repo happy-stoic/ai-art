@@ -37,7 +37,6 @@ MIN_OPACITY = 150
 def add_a_mark_to_the_canvas(canvas, symbol_params, pen, start_point):
     """Add a symbol to the canvas using a brush or pen."""
     # Turn the parameters into a command.
-    print(symbol_params)
     symbol = Symbol(symbol_params)
     # Apply the symbol to the canvas.
     canvas.symbol(start_point, symbol, pen)
@@ -101,7 +100,6 @@ def gen_random_mark_makers():
         mm, ms = get_mark_maker()
         mark_makers.append(mm)
         mark_specs.append(ms)
-    print(mark_makers)
     return mark_makers, mark_specs
 
 

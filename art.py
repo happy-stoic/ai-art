@@ -1,18 +1,5 @@
 """
-Todo:
-
-- Save into a folder you like/don't like.
--- set up the code with a prompt; loop round; y/n to define taste
--- do this until there is a healthy set of paintings in the folder
-
-- Show some simple statistics describing the painting
--- Load the descriptors from the pickled data
--- all the params; numerical description
--- colours; use a colour histogram of some sort
-
-- Change the parameters using scikit-learn
-- Implement a simple recommender system script
-- Try it out with different source images, stop when something looks cool enough.
+A script that creates random abstract art and saves it in .png format
 """
 
 from datetime import datetime

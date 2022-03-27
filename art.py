@@ -1,5 +1,6 @@
 """
 Todo:
+- Tidy up the parameters so that you can define a painting in one place
 - Change the parameters using scikit-learn
 - Implement a simple recommender system script
 - Try it out with different source images, stop when something looks cool enough.
@@ -13,74 +14,90 @@ import numpy as np
 import random
 from random import random, choice
 
-# Set up an image.
-image = Image.fromarray(np.zeros((800, 600, 3)), mode="RGB")
-canvas = Draw(image)
+
+MAXIMUM_STROKE_SIZE = 500
+MAXIMUM_CURVE_PARTS = 100
+MAXIMUM_START_POINT = 400
+MAXIMUM_PEN_WIDTH = 10
+N_MARKS = 100
 
 
 def add_a_mark_to_the_canvas(canvas, symbol_params, pen, start_point):
     """Add a symbol to the canvas using a brush or pen."""
     # Turn the parameters into a command.
-    symbol = Symbol(" ".join(symbol_params))
-    # Add the mark to the canvas.
+    print(f"FACTORY: {symbol_params}")
+    symbol = Symbol(symbol_params)
+    # Apply the symbol to the canvas.
     canvas.symbol(start_point, symbol, pen)
     canvas.flush()
 
 
-def gen_symbol_params():
-    letters = "MLHVCSQTZ"
-    params = []
-
-    scale = random()*1000
-    n_strokes = int(random()*20)
-
-    # A random number generator.
-    rand = lambda : random()*scale
-
-    # Create a string of commands for this symbol.
-    for _ in range(n_strokes):
-        params.append(f"{choice(letters)}{rand()}")
-        params.append(str(rand()))
-    return params
+def gen_stroke_part(letter, size, move):
+    """Create a single stroke command."""
+    return f"{letter}{size} {move}"
 
 
-def get_mark_maker_params():
+def gen_sentence_of_strokes(letters, sizes, movements):
+    """Generate a sequence of strokes."""
+    sentence = []
+    for l, s, m in zip(letters, sizes, movements):
+        sentence.append(gen_stroke_part(l,s,m))
+    sentence = " ".join(sentence)
+    print(f"STROKES: {sentence}")
+    return sentence
+
+
+def get_mark_maker():
+    # Create all the Pens and Brushes; randomly.
+    # Randomly select a brush or pen.
+    use_pen = random() > 0.5
+    # Generate a random colour.
     r_colour = lambda : int(random()*255)
     color = (r_colour(), r_colour(), r_colour())
-    params = dict(
-        color = color,
-        opacity = int(155 + random()*100)
-    )
-    return params
-
-
-def get_pen_params():
-    params = get_mark_maker_params()
-    params["width"] = int(random()*10)
-    return params
-
-
-def generate_a_mark_maker():
-    """Define a pen or brush to add a symbol."""
-    use_pen = random() > 0.5
+    # Generate a random opacity.
+    opacity = int(random()*255)
+    # Generate a random width.
+    width = int(random()*MAXIMUM_PEN_WIDTH)
+    # Create a mark maker
     if use_pen:
-        return Pen(**get_pen_params())
+        return Pen(color=color, opacity=opacity, width=width)
     else:
-        return Brush(**get_mark_maker_params())
+        return Brush(color=color, opacity=opacity)
 
 
-def gen_start_point():
-    return ((random()*400, random()*400))
+if __name__ == "__main__":
 
+    # Set up a canvas to paint on.
+    image = Image.fromarray(np.zeros((800, 600, 3)), mode="RGB")
+    canvas = Draw(image)
 
-for i_mark in range(1000):
-    symbol_params = gen_symbol_params()
-    start_point = gen_start_point()
-    mark_maker = generate_a_mark_maker()
-    add_a_mark_to_the_canvas(canvas, symbol_params, mark_maker, start_point)
+    # Generate the symbols that will decorate the canvas (random pen and brushstrokes).
+    curve_parts = int(random()*MAXIMUM_CURVE_PARTS)
+    stroke_sizes = lambda : random()*MAXIMUM_STROKE_SIZE
+    start_points = ((random()*MAXIMUM_START_POINT, random()*MAXIMUM_START_POINT))
 
-# Save the image
-now = datetime.now()
-image.save(f"data/art_{now.strftime('%Y_%m_%d_%H_%M_%S')}.png")
+    # Create all the brushstroke paths; randomly.
+    marks = []
+    stroke_lengths = (np.random.random(N_MARKS)*MAXIMUM_STROKE_SIZE).astype(int)
+    for length in stroke_lengths:
+        valid_letters = "MLHVCSQTZ"
+        letters = [choice(valid_letters) for x in range(length)]
+        sizes = [stroke_sizes() for x in range(length)]
+        movements = [stroke_sizes() for x in range(length)]
+        mark = gen_sentence_of_strokes(letters, sizes, movements)
+        marks.append(mark)
 
-# TODO: Save the params that I liked
+    # Create all the pens and brushes randomly.
+    mark_makers = []
+    for i_mm in range(N_MARKS):
+        mark_makers.append(get_mark_maker())
+
+    # Add Symbols with Pens and Brushes; paint that picture!
+    for mark, mark_maker in zip(marks, mark_makers):
+        add_a_mark_to_the_canvas(canvas, mark, mark_maker, start_points)
+    
+    # Save the image.
+    now = datetime.now()
+    image.save(f"data/art_{now.strftime('%Y_%m_%d_%H_%M_%S')}.png")
+
+    # TODO: Save the params that I liked

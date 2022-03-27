@@ -130,34 +130,29 @@ def load_and_recreate_an_image(filename):
 
 if __name__ == "__main__":
 
-    # Keep asking the user about paintings until they quit.
-    while True:
+    # Set up a canvas to paint on.
+    image = Image.fromarray(np.zeros((800, 600, 3)), mode="RGB")
+    canvas = Draw(image)
 
-        # Set up a canvas to paint on.
-        image = Image.fromarray(np.zeros((800, 600, 3)), mode="RGB")
-        canvas = Draw(image)
+    # Add Symbols with Pens and Brushes; paint that picture!
+    start_points, marks = gen_random_marks()
+    mark_makers, mark_specs = gen_random_mark_makers()
+    for start_point, mark, mark_maker in zip(start_points, marks, mark_makers):
+        add_a_mark_to_the_canvas(canvas, mark, mark_maker, start_point)
+    
+    # Save the image.
+    now = datetime.now()
+    filename = f"data/art_{now.strftime('%Y_%m_%d_%H_%M_%S')}"
+    image.save(filename + ".png")
 
-        # Add Symbols with Pens and Brushes; paint that picture!
-        start_points, marks = gen_random_marks()
-        mark_makers, mark_specs = gen_random_mark_makers()
-        for start_point, mark, mark_maker in zip(start_points, marks, mark_makers):
-            add_a_mark_to_the_canvas(canvas, mark, mark_maker, start_point)
-        
-        # Prompt the user, save into a the like or dislike folder based on critique.
-        image.show()
-        response = input("Do you like it? (y/n)")
-        save_dir = {'y':'like', 'n':'dislike'}[response]
+    # Show the image.
+    image.show()
 
-        # Save the image.
-        now = datetime.now()
-        filename = f"data/{save_dir}/art_{now.strftime('%Y_%m_%d_%H_%M_%S')}"
-        image.save(filename + ".png")
+    # Save instructions for how to re-create the image in a DataFrame.
+    df = pd.DataFrame()
+    df['start_points'] = start_points
+    df['marks'] = marks
+    df['mark_specs'] = mark_specs
 
-        # Save instructions for how to re-create the image in a DataFrame.
-        df = pd.DataFrame()
-        df['start_points'] = start_points
-        df['marks'] = marks
-        df['mark_specs'] = mark_specs
-
-        # Save it.
-        df.to_pickle(filename + '.pickle')
+    # Save it.
+    df.to_pickle(filename + '.pickle')

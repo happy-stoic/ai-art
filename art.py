@@ -154,6 +154,7 @@ if __name__ == "__main__":
         now = datetime.now()
         filename = f"data/{save_dir}/art_{now.strftime('%Y_%m_%d_%H_%M_%S')}"
         image.save(filename + ".png")
+        image.close()
 
         # Save instructions for how to re-create the image in a DataFrame.
         df = pd.DataFrame()
